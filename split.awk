@@ -5,7 +5,7 @@
 
 BEGIN{RS="&\n"; FS="\n"}
 {
-  print "FOUND FIELD: "$1
+  # print "FOUND FIELD: "$1
   if($1 ~ /CONTROL/) {
     for(i=2; i<=NF; ++i)
     {
@@ -41,8 +41,6 @@ BEGIN{RS="&\n"; FS="\n"}
     for (i=2;i<=NF;++i) {
       print $i >> "CELL"
     }
-
   }
-
 }
-END{print "DONE"}
+END{}
