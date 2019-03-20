@@ -5,10 +5,11 @@ import sys
 
 import numpy as np
 import pandas as pa
+import spglib
 from scipy.constants import physical_constants
 
 # bohr radius in Angstrom
-br = physical_constants['Bohr radius'][0]/physical_constants['Angstrom star'][0]
+br = physical_constants['Bohr radius'][0] / physical_constants['Angstrom star'][0]
 
 SIRIUS_JSON = {
     "control": {
@@ -54,12 +55,36 @@ SIRIUS_JSON = {
 }
 
 
+def irreducible_kpoints(fname_sirius_json='sirius.json'):
+    sirius_config = json.load(open(fname_sirius_json, 'r'))
+    pos = sirius_config['unit_cell']['atoms']
+    C = np.array(sirius_config['unit_cell']['lattice_vectors'])
+    positions = list(pos.values())
+    indicator = [np.ones(len(x)) * i for i, x in enumerate(positions)]
+    indicator = np.hstack(indicator)
+
+    # assume atom pos given in a.u.
+    pos= np.vstack(positions)
+    rpos = np.linalg.solve(C.T, pos.T).T
+    cell = (C, pos, indicator)
+    mesh = sirius_config['parameters']['ngridk']
+
+    # Gamma centre mesh
+    mapping, grid=spglib.get_ir_reciprocal_mesh(
+        mesh, cell, is_shift = [0, 0, 0])
+
+    # Irreducible k-points
+    print('ngridk              :', mesh)
+    print('Number of ir-kpoints: %d' % len(np.unique(mapping)))
+    # print(grid[np.unique(mapping)] / np.array(mesh, dtype=float))
+
+
 def to_list(arr):
     return [list(x) for x in arr]
 
 
 def load_kpoints(fname):
-    data = np.loadtxt(fname, comments='#')
+    data=np.loadtxt(fname, comments = '#')
     return [int(x) for x in data[:3]], list(data[3:])
 
 
@@ -71,17 +96,17 @@ def load_cell(fname):
 
 
 if __name__ == '__main__':
-    sirius_json = SIRIUS_JSON
+    sirius_json=SIRIUS_JSON
 
     if len(sys.argv) > 1:
-        dirname = sys.argv[1]
+        dirname=sys.argv[1]
     else:
-        dirname = './'
+        dirname='./'
 
-    pos = pa.read_csv(os.path.join(dirname, 'POS'),
-                      delimiter=r'\s+', skiprows=1, header=None)
+    pos=pa.read_csv(os.path.join(dirname, 'POS'),
+                      delimiter = r'\s+', skiprows = 1, header = None)
     # store atom positions in atomic units
-    pos_dict = {k: to_list(np.array(data[[1, 2, 3]]/br))
+    pos_dict={k: to_list(np.array(data[[1, 2, 3]]/br))
                 for k, data in pos.groupby(0)}
 
     sirius_json['unit_cell']['atom_types'] = list(pos_dict.keys())
@@ -98,3 +123,5 @@ if __name__ == '__main__':
 
     with open('sirius.json', 'w') as f:
         json.dump(sirius_json, f, indent=2)
+
+    irreducible_kpoints()
