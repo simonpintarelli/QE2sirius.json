@@ -1,0 +1,42 @@
+{
+    "control" : {
+        "processing_unit" : "gpu",
+        "std_evp_solver_type" : "lapack",
+        "gen_evp_solver_type" : "lapack",
+        "verbosity" : 1,
+    },
+
+    "parameters" : {
+        "electronic_structure_method" : "pseudopotential",
+        "xc_functionals" : ["XC_GGA_X_PBE", "XC_GGA_C_PBE"],
+        "smearing_width" : 0.025,
+        "use_symmetry" : True,
+        "num_mag_dims" : 1,
+        "gk_cutoff" : 6.0,
+        "pw_cutoff" : 27.00,
+        "energy_tol" : 1e-8,
+        "potential_tol" : 1e-8,
+        "num_dft_iter" : 100,
+        "ngridk" : "None"
+    },
+
+    "iterative_solver" : {
+        "type" : "davidson",
+        "min_occupancy" : 1e-5
+    },
+
+    "unit_cell" : {
+        "lattice_vectors" : [],
+        "atom_coordinate_units": "A",
+        "atom_types" : [""],
+        "atom_files" : {},
+        "atoms" : {
+        }
+    },
+
+    "mixer" : {
+        "beta" : 0.95,
+        "type" : "broyden1",
+        "max_history" : 8
+    }
+}

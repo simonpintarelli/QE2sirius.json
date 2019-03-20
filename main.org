@@ -1,0 +1,22 @@
+[[file:~/work/_synced_/SIRIUS/scf_unconverged/0cd02688-2b7f-4b96-a4df-25d5891191f1/][file:~/work/_synced_/SIRIUS/scf_unconverged/0cd02688-2b7f-4b96-a4df-25d5891191f1/]]
+
+
+#+BEGIN_SRC sh :session sh_session :term zsh :results raw drawer
+  scriptdir=~/work/_synced_/QE2SIRIUS-input
+  cd ~/work/_synced_/SIRIUS/scf_unconverged/0cd02688-2b7f-4b96-a4df-25d5891191f1
+  $scriptdir/process.sh aiida.in
+#+END_SRC
+
+#+RESULTS:
+:results:
+
+sh-5.0$ FOUND FIELD:
+FOUND FIELD: CONTROL
+FOUND FIELD: SYSTEM
+FOUND FIELD: ELECTRONS
+FOUND FIELD: ATOMIC_SPECIES
+FOUND FIELD: ATOMIC_POSITIONS
+FOUND FIELD: K_POINTS
+FOUND FIELD: CELL_PARAMETERS
+DONE
+:end:
