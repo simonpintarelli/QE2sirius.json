@@ -10,6 +10,7 @@ from scipy.constants import physical_constants
 
 # bohr radius in Angstrom
 br = physical_constants['Bohr radius'][0] / physical_constants['Angstrom star'][0]
+pseudo_dir = '/scratch/SSSP_efficiency_pseudos'
 
 SIRIUS_JSON = {
     "control": {
@@ -125,3 +126,15 @@ if __name__ == '__main__':
         json.dump(sirius_json, f, indent=2)
 
     irreducible_kpoints()
+
+    # get number of electrons, assuming UPF is called ELEM.json, where elem is the atom label
+    nelectrons = 0
+    elem_charge = {}
+    for atom in sirius_json['unit_cell']['atom_types']:
+        pseudo_json = json.load(open(os.path.join(pseudo_dir, atom+'.json')))
+        z = int(pseudo_json['pseudo_potential']['header']['z_valence'])
+        na = len(pos_dict[atom])
+        nelectrons += z * na
+        elem_charge[atom + '_' + str(na)] = z
+    print('num electrons:', nelectrons)
+    print('elements: ', elem_charge)
