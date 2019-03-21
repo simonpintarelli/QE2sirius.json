@@ -124,15 +124,18 @@ if __name__ == '__main__':
                 for k, data in pos.groupby(0)}
     # extend by magnetization
     for atom_type in pos_dict:
-        lpos = [x + list(qe_system['magnetization'][atom_type]) for x in pos_dict[atom_type]]
-        pos_dict[atom_type] = lpos
+        if atom_type in qe_system['magnetization']:
+            lpos = [x + list(qe_system['magnetization'][atom_type]) for x in pos_dict[atom_type]]
+            pos_dict[atom_type] = lpos
+        else:
+            # this atom does not have magnetization
+            continue
 
     sirius_json['unit_cell']['atom_types'] = list(pos_dict.keys())
     sirius_json['unit_cell']['atoms'] = pos_dict
     sirius_json['unit_cell']['lattice_vectors'] = load_cell(
         os.path.join(dirname, 'CELL'))
-    sirius_json['unit_cell']['atom_files'] = [
-        k + '.json' for k in pos_dict.keys()]
+    sirius_json['unit_cell']['atom_files'] = {k: k + '.json' for k in pos_dict.keys()}
     print("natoms: ", sum([len(x) for x in pos_dict.values()]))
     volume = np.abs(np.linalg.det(np.array(sirius_json['unit_cell']['lattice_vectors'])))
     print("volume: %.2f" % volume)
