@@ -7,10 +7,12 @@ import numpy as np
 import pandas as pa
 import spglib
 from scipy.constants import physical_constants
+from readers import read_system, read_electrons, read_species
 
 # bohr radius in Angstrom
 br = physical_constants['Bohr radius'][0] / \
     physical_constants['Angstrom star'][0]
+# pseudo
 pseudo_dir = '/scratch/SSSP_efficiency_pseudos'
 
 SIRIUS_JSON = {
@@ -26,7 +28,7 @@ SIRIUS_JSON = {
         "xc_functionals": ["XC_GGA_X_PBE", "XC_GGA_C_PBE"],
         "smearing_width": 0.025,
         "use_symmetry": True,
-        "num_mag_dims": 1,
+        "num_mag_dims": '<MISSING>',
         "gk_cutoff": 6.0,
         "pw_cutoff": 27.00,
         "energy_tol": 1e-8,
@@ -50,7 +52,7 @@ SIRIUS_JSON = {
     },
 
     "mixer": {
-        "beta": 0.95,
+        "beta": "<MISSING>",
         "type": "broyden1",
         "max_history": 8
     }
@@ -105,11 +107,25 @@ if __name__ == '__main__':
     else:
         dirname = './'
 
+    qe_system = read_system(os.path.join(dirname, 'SYSTEM'))
+    qe_electrons = read_electrons(os.path.join(dirname, 'ELECTRONS'))
+    qe_species = read_species(os.path.join(dirname, 'SPECIES'))
+
+    # combine qe_system and qe_species and store magnetization vector
+    for i, data  in enumerate(qe_species):
+        mag = qe_system['magnetization'][i]
+        # magnetization in z-direction
+        qe_system['magnetization'][data['type']] = np.array([0, 0, np.sign(mag)])
+
     pos = pa.read_csv(os.path.join(dirname, 'POS'),
                       delimiter=r'\s+', skiprows=1, header=None)
     # store atom positions in atomic units
     pos_dict = {k: to_list(np.array(data[[1, 2, 3]]/br))
                 for k, data in pos.groupby(0)}
+    # extend by magnetization
+    for atom_type in pos_dict:
+        lpos = [x + list(qe_system['magnetization'][atom_type]) for x in pos_dict[atom_type]]
+        pos_dict[atom_type] = lpos
 
     sirius_json['unit_cell']['atom_types'] = list(pos_dict.keys())
     sirius_json['unit_cell']['atoms'] = pos_dict
@@ -118,11 +134,26 @@ if __name__ == '__main__':
     sirius_json['unit_cell']['atom_files'] = [
         k + '.json' for k in pos_dict.keys()]
     print("natoms: ", sum([len(x) for x in pos_dict.values()]))
+    volume = np.abs(np.linalg.det(np.array(sirius_json['unit_cell']['lattice_vectors'])))
+    print("volume: %.2f" % volume)
 
     ngridk, shiftk = load_kpoints(os.path.join(dirname, 'KPOINTS'))
     sirius_json['parameters']['ngridk'] = ngridk
     sirius_json['parameters']['shiftk'] = shiftk
 
+    #
+    if qe_system['nspin'] == 2:
+        sirius_json['parameters']['num_mag_dims'] = 1
+    elif qe_system['spin'] == 1:
+        sirius_json['parameters']['num_mag_dims'] = 0
+    else:
+        raise ValueError('num_mag_dims not set')
+
+    sirius_json['parameters']['pw_cutoff'] = np.sqrt(qe_system['ecutrho'])
+    sirius_json['parameters']['gk_cutoff'] = np.sqrt(qe_system['ecutwfc'])
+    sirius_json['mixer']['beta'] = qe_electrons['mixing_beta']
+
+    # store sirius.json
     with open('sirius.json', 'w') as f:
         json.dump(sirius_json, f, indent=2)
 
