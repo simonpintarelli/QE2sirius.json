@@ -1,15 +1,11 @@
 #!/usr/bin/gawk -f
 
-# FS: field separator, i.e. fields => lines
-# BEGIN{RS="(&CONTROL|&SYSTEM|&ELECTRONS|ATOMIC_SPECIES|ATOMIC_POSITIONS)"; FS="\n"; print "BEGIN"}
-
 BEGIN{RS="&\n"; FS="\n"}
 {
   # print "FOUND FIELD: "$1
   if($1 ~ /CONTROL/) {
     for(i=2; i<=NF; ++i)
     {
-      #parse system settings
       print $i >> "CTRL"
     }
   }
