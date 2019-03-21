@@ -67,8 +67,8 @@ def irreducible_kpoints(fname_sirius_json='sirius.json'):
 
     # assume atom pos given in a.u.
     pos = np.vstack(positions)
-    rpos = np.linalg.solve(C.T, pos.T).T
-    cell = (C, pos, indicator)
+    rpos = np.linalg.solve(C.T, pos[:,:3].T).T
+    cell = (C, rpos, indicator)
     mesh = sirius_config['parameters']['ngridk']
 
     # Gamma centre mesh
