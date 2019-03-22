@@ -22,7 +22,6 @@ SIRIUS_JSON = {
         "gen_evp_solver_type": "lapack",
         "verbosity": 1,
     },
-
     "parameters": {
         "electronic_structure_method": "pseudopotential",
         "xc_functionals": ["XC_GGA_X_PBE", "XC_GGA_C_PBE"],
@@ -36,12 +35,10 @@ SIRIUS_JSON = {
         "num_dft_iter": 100,
         "ngridk": "None"
     },
-
     "iterative_solver": {
         "type": "davidson",
         "min_occupancy": 1e-5
     },
-
     "unit_cell": {
         "lattice_vectors": [],
         "atom_coordinate_units": "au",
@@ -50,7 +47,6 @@ SIRIUS_JSON = {
         "atoms": {
         }
     },
-
     "mixer": {
         "beta": "<MISSING>",
         "type": "broyden1",
@@ -119,7 +115,7 @@ if __name__ == '__main__':
 
     pos = pa.read_csv(os.path.join(dirname, 'POS'),
                       delimiter=r'\s+', skiprows=1, header=None)
-    # store atom positions in atomic units
+    # convert atom positions to atomic units
     pos_dict = {k: to_list(np.array(data[[1, 2, 3]]/br))
                 for k, data in pos.groupby(0)}
     # extend by magnetization
