@@ -68,6 +68,8 @@ def irreducible_kpoints(fname_sirius_json='sirius.json'):
     rpos = np.linalg.solve(C.T, pos[:,:3].T).T
     cell = (C, rpos, indicator)
     mesh = sirius_config['parameters']['ngridk']
+    if (rpos > 1).any() or (rpos < 0).any():
+        print('WARNING: atoms not inside unit cell')
 
     # Gamma centre mesh
     mapping, grid = spglib.get_ir_reciprocal_mesh(
@@ -109,23 +111,26 @@ if __name__ == '__main__':
 
     # combine qe_system and qe_species and store magnetization vector
     for i, data  in enumerate(qe_species):
-        mag = qe_system['magnetization'][i]
         # magnetization in z-direction
-        qe_system['magnetization'][data['type']] = np.array([0, 0, np.sign(mag)])
+        if qe_system['magnetization']:
+            mag = qe_system['magnetization'][i]
+            qe_system['magnetization'][data['type']] = np.array([0, 0, np.sign(mag)])
 
     pos = pa.read_csv(os.path.join(dirname, 'POS'),
                       delimiter=r'\s+', skiprows=1, header=None)
     # convert atom positions to atomic units
     pos_dict = {k: to_list(np.array(data[[1, 2, 3]]/br))
                 for k, data in pos.groupby(0)}
-    # extend by magnetization
-    for atom_type in pos_dict:
-        if atom_type in qe_system['magnetization']:
-            lpos = [x + list(qe_system['magnetization'][atom_type]) for x in pos_dict[atom_type]]
-            pos_dict[atom_type] = lpos
-        else:
-            # this atom does not have magnetization
-            continue
+
+    if 'magnetization' in qe_system:
+        # extend by magnetization
+        for atom_type in pos_dict:
+            if atom_type in qe_system['magnetization']:
+                lpos = [x + list(qe_system['magnetization'][atom_type]) for x in pos_dict[atom_type]]
+                pos_dict[atom_type] = lpos
+            else:
+                # this atom does not have magnetization
+                continue
 
     sirius_json['unit_cell']['atom_types'] = list(pos_dict.keys())
     sirius_json['unit_cell']['atoms'] = pos_dict
@@ -138,12 +143,12 @@ if __name__ == '__main__':
 
     ngridk, shiftk = load_kpoints(os.path.join(dirname, 'KPOINTS'))
     sirius_json['parameters']['ngridk'] = ngridk
-    sirius_json['parameters']['shiftk'] = shiftk
+    sirius_json['parameters']['shiftk'] = [int(x) for x in shiftk]
 
     #
     if qe_system['nspin'] == 2:
         sirius_json['parameters']['num_mag_dims'] = 1
-    elif qe_system['spin'] == 1:
+    elif qe_system['nspin'] == 1:
         sirius_json['parameters']['num_mag_dims'] = 0
     else:
         raise ValueError('num_mag_dims not set')
