@@ -10,10 +10,10 @@ from scipy.constants import physical_constants
 from readers import read_system, read_electrons, read_species
 
 # bohr radius in Angstrom
-br = physical_constants['Bohr radius'][0] / \
-    physical_constants['Angstrom star'][0]
+br = physical_constants['Bohr radius'][0] * 1e10
+
 # pseudo
-pseudo_dir = '/scratch/SSSP_efficiency_pseudos'
+pseudo_dir = '/home/simon/work/sg15_hgh'
 
 SIRIUS_JSON = {
     "control": {
