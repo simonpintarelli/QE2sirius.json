@@ -151,8 +151,8 @@ if __name__ == '__main__':
     elif qe_system['nspin'] == 1:
         sirius_json['parameters']['num_mag_dims'] = 0
     else:
-        raise ValueError('num_mag_dims not set')
-
+        # default, non-magnetic
+        sirius_json['parameters']['num_mag_dims'] = 0
     sirius_json['parameters']['pw_cutoff'] = np.sqrt(qe_system['ecutrho'])
     sirius_json['parameters']['gk_cutoff'] = np.sqrt(qe_system['ecutwfc'])
     sirius_json['mixer']['beta'] = qe_electrons['mixing_beta']
