@@ -36,6 +36,12 @@ def read_system(fname='SYSTEM'):
         else:
             if DEBUG:
                 print('string entry in SYSTEM with key: ', k)
+    if 'ibrav' in data:
+        # https://www.quantum-espresso.org/Doc/INPUT_PW.html#ibrav
+        # cell must be read from CELL_PARAMETERS
+        # ibrav≠0 is not implemented
+        assert(data['ibrav'] == 0)
+
     return data
 
 
