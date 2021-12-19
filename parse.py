@@ -47,11 +47,11 @@ SIRIUS_JSON = {
         "atoms": {
         }
     },
-    "mixer": {
-        "beta": "<MISSING>",
-        "type": "broyden1",
-        "max_history": 8
-    }
+    # "mixer": {
+    #     "beta": "<MISSING>",
+    #     "type": "broyden1",
+    #     "max_history": 8
+    # }
 }
 
 
