@@ -7,6 +7,8 @@ from collections import defaultdict
 DEBUG = False
 
 def make_dict(fname):
+    """Reads a QE input file section, for example SYSTEM.
+    """
     with open(fname, 'r') as fh:
         lines = fh.readlines()
     data = defaultdict(lambda: '<missing>')
@@ -22,7 +24,9 @@ def to_float(x):
 
 
 def read_system(fname='SYSTEM'):
+
     data = make_dict(fname)
+
     data['magnetization'] = {}
     for k, v in data.items():
         match = re.match('starting_magnetization\(([0-9]+)\)', k)
@@ -36,6 +40,14 @@ def read_system(fname='SYSTEM'):
         else:
             if DEBUG:
                 print('string entry in SYSTEM with key: ', k)
+
+        # match = re.match('degauss\s*=\s+(.*)', k)
+        # if match:
+        #     data['smearing_width'] = 0.5*to_float(match.group(1)) # rydberg -> hartree
+        # match = re.match('smearing\s*=\s+(.*)', k)
+        # if match:
+        #     data['smearing'] = match.group(1).strip('\'')
+
     if 'ibrav' in data:
         # https://www.quantum-espresso.org/Doc/INPUT_PW.html#ibrav
         # cell must be read from CELL_PARAMETERS
