@@ -18,7 +18,7 @@ pseudo_dir = '/home/simon/work/sg15_hgh'
 
 # convert QE smearing name to sirius name
 smearing_qe2sirius = {'gauss': 'gaussian',
-                      'gauss': 'gauss',
+                      'gauss': 'gaussian',
                       'f-d': 'fermi_dirac',
                       'fermi-dirac': 'fermi_dirac',
                       'fd': 'fermi_dirac',
