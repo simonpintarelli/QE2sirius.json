@@ -29,7 +29,7 @@ def read_system(fname='SYSTEM'):
 
     data['magnetization'] = {}
     for k, v in data.items():
-        match = re.match('starting_magnetization\(([0-9]+)\)', k)
+        match = re.match('starting_magnetization\\(([0-9]+)\\)', k)
         if match:
             atom_index = int(match.group(1))-1
             data['magnetization'][atom_index] = to_float(v)
