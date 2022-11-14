@@ -2,11 +2,11 @@ import os
 import re
 import sys
 from collections import defaultdict
-
+from typing import Any
 
 DEBUG = False
 
-def make_dict(fname):
+def make_dict(fname) -> defaultdict[str, Any]:
     """Reads a QE input file section, for example SYSTEM.
     """
     with open(fname, 'r') as fh:
