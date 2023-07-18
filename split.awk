@@ -37,6 +37,11 @@ BEGIN{RS="&\n"; FS="\n"}
     for (i=2;i<=NF;++i) {
       print $i >> "CELL"
     }
+  } else if ($1 ~ /HUBBARD/) {
+    for (i=2;i<=NF;++i) {
+      print $i >> "HUBBARD"
+    }
   }
+
 }
 END{}

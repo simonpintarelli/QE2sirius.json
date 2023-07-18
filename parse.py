@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pa
 import spglib
 from scipy.constants import physical_constants
-from readers import read_system, read_electrons, read_species, to_float
+from readers import read_system, read_electrons, read_species
 
 # bohr radius in Angstrom
 br = physical_constants['Bohr radius'][0] * 1e10
@@ -174,8 +174,8 @@ if __name__ == '__main__':
                 # this atom does not have magnetization
                 continue
     sirius_json['parameters']['smearing'] = smearing_qe2sirius[qe_system['smearing']]
-    sirius_json['parameters']['smearing_width'] = 0.5 * qe_system['degauss']  # rydberg -> hartree
-    print('sirius params', sirius_json['parameters'])
+    sirius_json['parameters']['smearing_width'] = 0.5 * float(qe_system['degauss'])  # rydberg -> hartree
+    print('sirius params', json.dumps(sirius_json['parameters'], indent=2))
 
     sirius_json['unit_cell']['atom_types'] = list(pos_dict.keys())
 

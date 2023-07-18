@@ -1,5 +1,7 @@
 #!/usr/bin/bash
 
+set -e
+
 scriptdir=$(dirname "$(realpath "$0")")
 
 function clean_tmp_files()
@@ -17,7 +19,7 @@ clean_tmp_files "$1"
 cat "$1" | sed -e 's/ATOMIC_SPECIES/\&ATOMIC_SPECIES/g' \
              -e 's/ATOMIC_POSITIONS/\&ATOMIC_POSITIONS\n#/g' \
              -e 's/K_POINTS/\&K_POINTS\n#/g' \
+             -e 's/HUBBARD/\&HUBBARD\n#/g' \
              -e 's/CELL_PARAMETERS/\&CELL_PARAMETERS\n#/g' | sed 's/\&/\&\n/' | sed '/^\/$/d' | tee qe2sirius.log | "${scriptdir}"/split.awk
-
-python "${scriptdir}"/parse.py "$(dirname "$1")"
+python "${scriptdir}"/parse.py ./
 # clean_tmp_files $1
